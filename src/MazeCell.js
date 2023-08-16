@@ -1,3 +1,9 @@
+/**
+ * Return a MazeCell representing a cell in a maze. A maze cell has a north wall,
+ * an east wall, and region used for maze generation.
+ * 
+ * @param {number} region used for maze generation algorithm
+ */
 function MazeCell(region) {
     this.north = true;
     this.east = true;
