@@ -1,0 +1,5 @@
+maybe we can have the junctions rotate as the puzzle
+add speed run mode
+circular maze? and you rotate the concentric circles
+
+maze solving with DFS

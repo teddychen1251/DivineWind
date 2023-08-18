@@ -3,11 +3,10 @@ const engine = new BABYLON.Engine(canvas, true);
 
 const CELL_HEIGHT = 4;
 const CELL_WIDTH = 4;
-const ROWS = 12;
-const COLS = 12;
-// maybe we can have the junctions rotate as the puzzle
-// add speed run mode
-const maze = generate_maze(ROWS, COLS);
+const ROWS = 20;
+const COLS = 10;
+
+const maze = generate_maze(ROWS, COLS, 0, LEFT_BOTTOM, RIGHT_TOP);
 
 const createScene = function () {
     const scene = new BABYLON.Scene(engine);
