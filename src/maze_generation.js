@@ -60,8 +60,8 @@ function generate_maze(rows, cols, seed, start, end) {
         }
     }
 
-    knockBorderWall(maze, ROWS, COLS, start);
-    knockBorderWall(maze, ROWS, COLS, end);
+    knockBorderWall(maze, start);
+    knockBorderWall(maze, end);
 
     return maze;
 }
@@ -90,45 +90,25 @@ function randIntFromZero(max) {
     return Math.floor(Math.random() * max);
 }
 
-function knockBorderWall(maze, rows, cols, location) {
-    // in case of even number of cells,
-    // 'center' means the smaller index of the two middle cells 
+function knockBorderWall(maze, location) {
+    const coords = translateLocationToCoords(location);
+    const cell = maze[coords.row][coords.col];
     switch (location) {
         case BOTTOM_CENTER:
-            maze[rows][Math.floor((cols + 1) / 2)].knockNorthWall();
+        case TOP_CENTER:
+        case BOTTOM_LEFT:
+        case BOTTOM_RIGHT:
+        case TOP_LEFT:
+        case TOP_RIGHT:
+            cell.knockNorthWall();
             break;
         case LEFT_CENTER:
-            maze[Math.floor(rows / 2 - 0.2)][0].knockEastWall();
-            break;
         case RIGHT_CENTER:
-            maze[Math.floor(rows / 2 - 0.2)][cols].knockEastWall();
-            break;
-        case TOP_CENTER:
-            maze[0][Math.floor((cols + 1) / 2)].knockNorthWall();
-            break;
-        case BOTTOM_LEFT:
-            maze[rows][1].knockNorthWall();
-            break;
-        case BOTTOM_RIGHT:
-            maze[rows][cols].knockNorthWall();
-            break;
-        case TOP_LEFT:
-            maze[0][1].knockNorthWall();
-            break;
-        case TOP_RIGHT:
-            maze[0][cols].knockNorthWall();
-            break;
         case LEFT_BOTTOM:
-            maze[rows - 1][0].knockEastWall();
-            break;
         case LEFT_TOP:
-            maze[0][0].knockEastWall();
-            break;
         case RIGHT_BOTTOM:
-            maze[rows - 1][cols].knockEastWall();
-            break;
         case RIGHT_TOP:
-            maze[0][cols].knockEastWall()
+            cell.knockEastWall()
             break;
         default:
             break;
