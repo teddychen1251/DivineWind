@@ -1,17 +1,12 @@
 const canvas = document.getElementById("renderCanvas");
 const engine = new BABYLON.Engine(canvas, true);
 
-const CELL_HEIGHT = 4;
-const CELL_WIDTH = 4;
-const ROWS = 20;
-const COLS = 10;
-
-const maze = generate_maze(ROWS, COLS, 0, LEFT_BOTTOM, RIGHT_TOP);
+const maze = generate_maze(ROWS, COLS, 0, MAZE_START, MAZE_END);
 
 const createScene = function () {
     const scene = new BABYLON.Scene(engine);
     const camera = new BABYLON.UniversalCamera("camera1", 
-        new BABYLON.Vector3(0, 0, -20), scene);
+        new BABYLON.Vector3(0, 0, -70), scene);
     camera.setTarget(BABYLON.Vector3.Zero());
     camera.attachControl(canvas, true);
     const light = new BABYLON.HemisphericLight("light", 
@@ -57,7 +52,8 @@ const createScene = function () {
         }
     } 
     let lineSys = BABYLON.MeshBuilder.CreateLineSystem("lines", { lines: lines });
-
+    lineSys.position.x -= 20;
+    lineSys.position.y += 20;
     return scene;
 };
 const scene = createScene();
