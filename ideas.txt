@@ -3,3 +3,5 @@ add speed run mode
 circular maze? and you rotate the concentric circles
 
 maze solving with DFS
+
+I realize now that circular mazes are probably more fun in VR and also maybe easier to implement (I may eat those words)
