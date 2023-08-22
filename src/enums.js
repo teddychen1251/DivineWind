@@ -1,4 +1,4 @@
-// maze locations
+// maze entrance locations
 const BOTTOM_CENTER = "bottom center";
 const LEFT_CENTER = "left center";
 const RIGHT_CENTER = "right center";
