@@ -15,3 +15,10 @@ const RIGHT_TOP = "right top";
 // maze cell wall locations
 const NORTH = "north";
 const EAST = "east";
+
+// maze cell internal locations
+const CENTER = "center";
+const UPPER_LEFT = "upper left corner";
+const UPPER_RIGHT = "upper right corner";
+const LOWER_LEFT = "lower left corner";
+const LOWER_RIGHT = "lower right corner";

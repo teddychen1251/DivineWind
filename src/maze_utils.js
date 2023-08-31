@@ -118,8 +118,15 @@ function translateLocationToCoordsForWallBreaking(mazeLocation) {
     return coords;
 }
 
-function translateMazeCoordinatesToWorldPos(mazeCoords) {
-    return new BABYLON.Vector3((mazeCoords.col + 0.5) * CELL_WIDTH, -(mazeCoords.row + 0.5) * CELL_HEIGHT, 0);
+function translateMazeCoordinatesToWorldPos(mazeCoords, cellLocation) {
+    switch (cellLocation) {
+        case UPPER_RIGHT:
+            return new BABYLON.Vector3((mazeCoords.col + 1) * CELL_WIDTH, -(mazeCoords.row) * CELL_HEIGHT, 0);
+        case CENTER:
+            return new BABYLON.Vector3((mazeCoords.col + 0.5) * CELL_WIDTH, -(mazeCoords.row + 0.5) * CELL_HEIGHT, 0);
+        default:
+            break;
+    }
 }
 
 function MazeCoordinates(row, col) {
