@@ -10,31 +10,52 @@ function rSolveMaze(maze, cellCoords, path, visited, end) {
     if (!cellCoords.isValidCell()) {
         return [];
     }
-    let cell = maze[cellCoords.row][cellCoords.col];
+    let cell = maze[cellCoords.layer][cellCoords.cell];
     if (visited.has(cell)) {
         return [];
     }
     visited.add(cell);
     path.push(cellCoords);
-    if (cellCoords.row === end.row && cellCoords.col === end.col) {
+    if (cellCoords.layer === end.layer && cellCoords.cell === end.cell) {
         return path;
     }
-    if (!cell.north) {
-        let solved = rSolveMaze(maze, cellCoords.northAdjacent(), path.slice(), visited, end);
-        if (solved.length > 0) return solved;
+    if (cellCoords.hasTwoOuterAdjacent()) {
+        if (!cell.north0) {
+            let solved = rSolveMaze(maze, cellCoords.outer0Adjacent(), path.slice(), visited, end);
+            if (solved.length > 0) return solved;
+        }
+        if (!cell.north1) {
+            let solved = rSolveMaze(maze, cellCoords.outer0Adjacent(), path.slice(), visited, end);
+            if (solved.length > 0) return solved;
+        }
+    } else {
+        if (!cell.north0) {
+            let solved = rSolveMaze(maze, cellCoords.outerAdjacent(), path.slice(), visited, end);
+            if (solved.length > 0) return solved;
+        }
     }
     if (!cell.east) {
-        let solved = rSolveMaze(maze, cellCoords.eastAdjacent(), path.slice(), visited, end);
+        let solved = rSolveMaze(maze, cellCoords.clockwiseAdjacent(), path.slice(), visited, end);
         if (solved.length > 0) return solved;
     }
-    let south = cellCoords.southAdjacent();
-    if (south.isValidCell() && !maze[south.row][south.col].north) {
-        let solved = rSolveMaze(maze, south, path.slice(), visited, end);
-        if (solved.length > 0) return solved;
+    let inner = cellCoords.innerAdjacent();
+    if (cellCoords.hasDoublyLargeInnerAdjacent()) {
+        if (cellCoords.cell % 2 === 0 && !maze[inner.layer][inner.cell].north0) {
+            let solved = rSolveMaze(maze, inner, path.slice(), visited, end);
+            if (solved.length > 0) return solved;
+        } else if (!maze[inner.layer][inner.cell].north1) {
+            let solved = rSolveMaze(maze, inner, path.slice(), visited, end);
+            if (solved.length > 0) return solved;
+        }
+    } else {
+        if (inner.isValidCell() && !maze[inner.layer][inner.cell].north0) {
+            let solved = rSolveMaze(maze, inner, path.slice(), visited, end);
+            if (solved.length > 0) return solved;
+        }
     }
-    let west = cellCoords.westAdjacent();
-    if (west.isValidCell() && !maze[west.row][west.col].east) {
-        let solved = rSolveMaze(maze, west, path.slice(), visited, end);
+    let counterClockwise = cellCoords.counterClockwiseAdjacent();
+    if (counterClockwise.isValidCell() && !maze[counterClockwise.layer][counterClockwise.cell].east) {
+        let solved = rSolveMaze(maze, counterClockwise, path.slice(), visited, end);
         if (solved.length > 0) return solved;
     }
     return [];

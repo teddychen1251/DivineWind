@@ -1,62 +1,108 @@
 /**
- * Generates 2D array of MazeCells. Represents a maze.
+ * Generates 2D array of MazeCells. Represents a circular maze.
  * 
- * @param {number} rows number of rows in maze
- * @param {number} cols number of columns in maze
+ * @param {number} layers number of concentric layers in maze
  * @returns 2D array of MazeCells
  */
-function generate_maze(rows, cols, seed, start, end) {
+function generate_maze(layers, seed, start, end) {
     // represent maze as grid of MazeCells in 2D array
     const maze = [];
-    // add extra row and col to have a solid wall on the left and bottom of maze
-    for (let i = 0; i < rows + 1; i++) {
-        let row = [];
-        for (let j = 0; j < cols + 1; j++) {
-            const cell = new MazeCell();
-            row.push(cell);
-            if (i === rows) cell.knockEastWall();
-            if (j === 0) cell.knockNorthWall();
+    // add extra inner layer to have a solid wall on inner circle of maze
+    for (let i = 0; i < layers + 1; i++) {
+        let layer = [];
+        let radius = INNER_RADIUS + i * CELL_HEIGHT;
+        let circumference = 2 * Math.PI * radius;
+        let cellCount = 0;
+        if (i === 0) {
+            cellCount = Math.ceil(circumference / CELL_OUTER_ARC_THRESHOLD);
+        } else {
+            let prev = maze[i - 1].length;
+            cellCount = circumference / prev > CELL_OUTER_ARC_THRESHOLD
+                ? prev * 2
+                : prev;
         }
-        maze.push(row);
+        for (let j = 0; j < cellCount; j++) {
+            const cell = new MazeCell();
+            layer.push(cell);
+            if (i === 0) cell.knockEastWall();
+        }
+        maze.push(layer);
     }
 
     // knock walls of cells to generate maze
     const walls = [];
     // add deletable east walls
-    for (let i = 0; i < rows; i++) {
-        for (let j = 1; j < cols; j++) {
-            walls.push({row: i, col: j, wall: EAST});
+    for (let layer = 1; layer < maze.length; layer++) {
+        for (let cell = 0; cell < maze[layer].length; cell++) {
+            walls.push({layer: layer, cell: cell, wall: CLOCKWISE});
         }
     }
     // add deletable north walls
-    for (let i = 1; i < rows; i++) {
-        for (let j = 1; j < cols + 1; j++) {
-            walls.push({row: i, col: j, wall: NORTH});
+    for (let layer = 1; layer < maze.length - 1; layer++) {
+        if (maze[layer].length === maze[layer + 1].length / 2) {
+            for (let cell = 0; cell < maze[layer].length; cell++) {
+                walls.push({layer: layer, cell: cell, wall: OUTER_0});
+                walls.push({layer: layer, cell: cell, wall: OUTER_1});
+            }
+        } else {
+            for (let cell = 0; cell < maze[layer].length; cell++) {
+                walls.push({layer: layer, cell: cell, wall: OUTER});
+            }
         }
     }
     shuffle(walls);
+    let totalCells = 0;
+    for (let layer = 1; layer < maze.length; layer++) {
+        totalCells += maze[layer].length;
+    }
     // delete walls that separate regions of the maze
-    for (let i = 0, j = rows * cols - 1; i < walls.length && j > 0; i++) {
+    for (let i = 0, j = totalCells - 1; i < walls.length && j > 0; i++) {
         let wall = walls[i];
-        let cell = maze[wall.row][wall.col];
-        if (wall.wall === NORTH) {
-            let upper = maze[wall.row - 1][wall.col];
-            if (cell.updateRootsAndMatch(upper)) {
-                continue;
-            } else {
-                cell.knockNorthWall();
-                cell.copyRoot(upper);
-                j--;
-            }
-        } else {
-            let right = maze[wall.row][wall.col + 1];
-            if (cell.updateRootsAndMatch(right)) {
-                continue;
-            } else {
-                cell.knockEastWall();
-                cell.copyRoot(right);
-                j--;
-            }
+        let cell = maze[wall.layer][wall.cell];
+        switch (wall.wall) {
+            case OUTER:
+                let outer = maze[wall.layer + 1][wall.cell];
+                if (cell.updateRootsAndMatch(outer)) {
+                    continue;
+                } else {
+                    cell.knockNorthWall();
+                    cell.copyRoot(outer);
+                    j--;
+                }
+                break;
+            case OUTER_0:
+                let outer_0 = maze[wall.layer + 1][wall.cell * 2];
+                if (cell.updateRootsAndMatch(outer_0)) {
+                    continue;
+                } else {
+                    cell.knockNorth0Wall();
+                    cell.copyRoot(outer_0);
+                    j--;
+                }
+                break;
+            case OUTER_1:
+                let outer_1 = maze[wall.layer + 1][wall.cell * 2 + 1];
+                if (cell.updateRootsAndMatch(outer_1)) {
+                    continue;
+                } else {
+                    cell.knockNorth1Wall();
+                    cell.copyRoot(outer_1);
+                    j--;
+                }
+                break;
+            case CLOCKWISE:
+                let layerCellCount = maze[wall.layer].length;
+                let clockwise = maze[wall.layer][(wall.cell + 1) % layerCellCount];
+                if (cell.updateRootsAndMatch(clockwise)) {
+                    continue;
+                } else {
+                    cell.knockEastWall();
+                    cell.copyRoot(clockwise);
+                    j--;
+                }
+                break;
+            default:
+                break;
         }
     }
 
@@ -91,26 +137,7 @@ function randIntFromZero(max) {
 }
 
 function knockBorderWall(maze, location) {
-    const coords = translateLocationToCoordsForWallBreaking(location);
-    const cell = maze[coords.row][coords.col];
-    switch (location) {
-        case BOTTOM_CENTER:
-        case TOP_CENTER:
-        case BOTTOM_LEFT:
-        case BOTTOM_RIGHT:
-        case TOP_LEFT:
-        case TOP_RIGHT:
-            cell.knockNorthWall();
-            break;
-        case LEFT_CENTER:
-        case RIGHT_CENTER:
-        case LEFT_BOTTOM:
-        case LEFT_TOP:
-        case RIGHT_BOTTOM:
-        case RIGHT_TOP:
-            cell.knockEastWall()
-            break;
-        default:
-            break;
-    }
+    const coords = translateLocationToCoordsForWallBreaking(maze, location);
+    const cell = maze[coords.layer][coords.cell];
+    cell.knockNorthWall();
 }

@@ -1,151 +1,80 @@
 function translateLocationToCoords(mazeLocation) {
-    // in case of even number of cells,
-    // 'center' means the smaller index of the two middle cells 
-    const coords = new MazeCoordinates(0, 0);
     switch (mazeLocation) {
         case BOTTOM_CENTER:
-            coords.row = ROWS - 1;
-            coords.col = Math.floor((COLS + 1) / 2);
-            break;
+            return new MazeCoordinates(maze, LAYERS, maze[LAYERS].length / 2);
         case LEFT_CENTER:
-            coords.row = Math.floor(ROWS / 2 - 0.2);
-            coords.col = 1;
-            break;
+            return new MazeCoordinates(maze, LAYERS, 3 * maze[LAYERS].length / 4);
         case RIGHT_CENTER:
-            coords.row = Math.floor(ROWS / 2 - 0.2);
-            coords.col = COLS;
-            break;
+            return new MazeCoordinates(maze, LAYERS, maze[LAYERS].length / 4);
         case TOP_CENTER:
-            coords.row = 0;
-            coords.col = Math.floor((COLS + 1) / 2);
-            break;
-        case BOTTOM_LEFT:
-            coords.row = ROWS - 1;
-            coords.col = 1;
-            break;
-        case BOTTOM_RIGHT:
-            coords.row = ROWS - 1;
-            coords.col = COLS;
-            break;
-        case TOP_LEFT:
-            coords.row = 0;
-            coords.col = 1;
-            break;
-        case TOP_RIGHT:
-            coords.row = 0;
-            coords.col = COLS;
-            break;
-        case LEFT_BOTTOM:
-            coords.row = ROWS - 1;
-            coords.col = 1;
-            break;
-        case LEFT_TOP:
-            coords.row = 0;
-            coords.col = 1;
-            break;
-        case RIGHT_BOTTOM:
-            coords.row = ROWS - 1;
-            coords.col = COLS;
-            break;
-        case RIGHT_TOP:
-            coords.row = 0;
-            coords.col = COLS;
-            break;
+            return new MazeCoordinates(maze, LAYERS, 0);
         default:
             console.error("Invalid maze location given: " + mazeLocation);
             break;
     }
-    return coords;
 }
 
-function translateLocationToCoordsForWallBreaking(mazeLocation) {
+function translateLocationToCoordsForWallBreaking(maze, mazeLocation) {
     // in case of even number of cells,
     // 'center' means the smaller index of the two middle cells 
-    const coords = new MazeCoordinates(0, 0);
     switch (mazeLocation) {
         case BOTTOM_CENTER:
-            coords.row = ROWS;
-            coords.col = Math.floor((COLS + 1) / 2);
-            break;
+            return new MazeCoordinates(maze, LAYERS, maze[LAYERS].length / 2);
         case LEFT_CENTER:
-            coords.row = Math.floor(ROWS / 2 - 0.2);
-            coords.col = 0;
-            break;
+            return new MazeCoordinates(maze, LAYERS, 3 * maze[LAYERS].length / 4);
         case RIGHT_CENTER:
-            coords.row = Math.floor(ROWS / 2 - 0.2);
-            coords.col = COLS;
-            break;
+            return new MazeCoordinates(maze, LAYERS, maze[LAYERS].length / 4);
         case TOP_CENTER:
-            coords.row = 0;
-            coords.col = Math.floor((COLS + 1) / 2);
-            break;
-        case BOTTOM_LEFT:
-            coords.row = ROWS;
-            coords.col = 1;
-            break;
-        case BOTTOM_RIGHT:
-            coords.row = ROWS;
-            coords.col = COLS;
-            break;
-        case TOP_LEFT:
-            coords.row = 0;
-            coords.col = 1;
-            break;
-        case TOP_RIGHT:
-            coords.row = 0;
-            coords.col = COLS;
-            break;
-        case LEFT_BOTTOM:
-            coords.row = ROWS - 1;
-            coords.col = 0;
-            break;
-        case LEFT_TOP:
-            coords.row = 0;
-            coords.col = 0;
-            break;
-        case RIGHT_BOTTOM:
-            coords.row = ROWS - 1;
-            coords.col = COLS;
-            break;
-        case RIGHT_TOP:
-            coords.row = 0;
-            coords.col = COLS;
-            break;
+            return new MazeCoordinates(maze, LAYERS, 0);
         default:
             console.error("Invalid maze location given: " + mazeLocation);
             break;
     }
-    return coords;
 }
 
-function translateMazeCoordinatesToWorldPos(mazeCoords, cellLocation) {
-    switch (cellLocation) {
-        case UPPER_RIGHT:
-            return new BABYLON.Vector3((mazeCoords.col + 1) * CELL_WIDTH, -(mazeCoords.row) * CELL_HEIGHT, 0);
-        case CENTER:
-            return new BABYLON.Vector3((mazeCoords.col + 0.5) * CELL_WIDTH, -(mazeCoords.row + 0.5) * CELL_HEIGHT, 0);
-        default:
-            break;
-    }
+function translateMazeCoordinatesToWorldPos(mazeCoords) {
+    let radius = (mazeCoords.layer - 0.5) * CELL_HEIGHT + INNER_RADIUS;
+    let angleIncr = 2 * Math.PI / mazeCoords.maze[mazeCoords.layer].length;
+    let angle = (mazeCoords.cell + 0.5) * angleIncr;
+    return new BABYLON.Vector3(Math.sin(angle) * radius, Math.cos(angle) * radius, 0);
 }
 
-function MazeCoordinates(row, col) {
-    this.row = row;
-    this.col = col;
+function MazeCoordinates(maze, layer, cell) {
+    this.maze = maze;
+    this.layer = layer;
+    this.cell = cell;
     this.isValidCell = function () {
-        return (0 <= this.row && this.row < ROWS) &&
-            (0 < this.col && this.col <= COLS);
+        return 0 < this.layer && this.layer < LAYERS + 1;
     }
-    this.northAdjacent = function () {
-        return new MazeCoordinates(this.row - 1, this.col);
+    this.hasTwoOuterAdjacent = function () {
+        if (this.layer === LAYERS) return false;
+        return 2 * this.maze[this.layer].length === this.maze[this.layer + 1].length;
     }
-    this.southAdjacent = function () {
-        return new MazeCoordinates(this.row + 1, this.col);
+    this.outer0Adjacent = function () {
+        return new MazeCoordinates(this.maze, this.layer + 1, this.cell * 2);
     }
-    this.eastAdjacent = function () {
-        return new MazeCoordinates(this.row, this.col + 1);
+    this.outer1Adjacent = function () {
+        return new MazeCoordinates(this.maze, this.layer + 1, this.cell * 2 + 1);
     }
-    this.westAdjacent = function () {
-        return new MazeCoordinates(this.row, this.col - 1);
+    this.outerAdjacent = function () {
+        return new MazeCoordinates(this.maze, this.layer + 1, this.cell);
+    }
+    this.hasDoublyLargeInnerAdjacent = function () {
+        return this.layer > 1 && this.maze[this.layer].length === 2 * this.maze[this.layer - 1].length;
+    }
+    this.innerAdjacent = function () {
+        if (this.hasDoublyLargeInnerAdjacent()) {
+            return new MazeCoordinates(this.maze, this.layer - 1, Math.floor(this.cell / 2));
+        } else {
+            return new MazeCoordinates(this.maze, this.layer - 1, this.cell);
+        }
+    }
+    this.clockwiseAdjacent = function () {
+        let layerCellCount = this.maze[this.layer].length;
+        return new MazeCoordinates(this.maze, this.layer, (this.cell + 1) % layerCellCount);
+    }
+    this.counterClockwiseAdjacent = function () {
+        let layerCellCount = this.maze[this.layer].length;
+        return new MazeCoordinates(this.maze, this.layer, (this.cell + layerCellCount - 1) % layerCellCount);
     }
 }

@@ -4,7 +4,10 @@
  * 
  */
 function MazeCell() {
-    this.north = true;
+    // first half of north wall, clockwise
+    this.north0 = true;
+    // second half, clockwise
+    this.north1 = true;
     this.east = true;
     this.root = this;
     this.findBaseRoot = function () {
@@ -25,6 +28,8 @@ function MazeCell() {
         other.updateRoot();
         return this.root === other.root;
     }
-    this.knockNorthWall = function () { this.north = false }
+    this.knockNorthWall = function () { this.north0 = false; this.north1 = false; }
+    this.knockNorth0Wall = function () { this.north0 = false; }
+    this.knockNorth1Wall = function () { this.north1 = false; }
     this.knockEastWall = function () { this.east = false }
 }
