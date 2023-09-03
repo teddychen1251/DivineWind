@@ -119,15 +119,14 @@ const createScene = function () {
     // let brokenSys = BABYLON.MeshBuilder.CreateLineSystem("broken", {lines: broken}, scene);
     // brokenSys.color = new BABYLON.Color3(1, 0, 0);
     
-    // let solution = solveMaze(BOTTOM_CENTER, TOP_CENTER, maze);
-    // let solLines = [];
-    // for (let i = 1; i < solution.length; i++) {
-    //     console.log(translateMazeCoordinatesToWorldPos(solution[i - 1]));
-    //     solLines.push([translateMazeCoordinatesToWorldPos(solution[i - 1]), translateMazeCoordinatesToWorldPos(solution[i])]);
-    // }
-    // let solLineSys = BABYLON.MeshBuilder.CreateLineSystem("solution path", { lines: solLines });
-    // solLineSys.parent = mazeLineSys;
-    // solLineSys.color = new BABYLON.Color3(0, 1, 0);
+    let solution = solveMaze(BOTTOM_CENTER, TOP_CENTER, maze);
+    let solLines = [];
+    for (let i = 1; i < solution.length; i++) {
+        solLines.push([translateMazeCoordinatesToWorldPos(solution[i - 1]), translateMazeCoordinatesToWorldPos(solution[i])]);
+    }
+    let solLineSys = BABYLON.MeshBuilder.CreateLineSystem("solution path", { lines: solLines });
+    solLineSys.parent = mazeLineSys;
+    solLineSys.color = new BABYLON.Color3(0, 1, 0);
     return scene;
 };
 const scene = createScene();

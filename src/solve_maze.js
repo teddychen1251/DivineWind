@@ -1,6 +1,6 @@
 function solveMaze(start, end, maze) {
-    const startCoords = translateLocationToCoords(start);
-    const endCoords = translateLocationToCoords(end);
+    const startCoords = translateLocationToCoords(maze, start);
+    const endCoords = translateLocationToCoords(maze, end);
     // put MazeCells here to check the reference
     let visited = new Set();
     return rSolveMaze(maze, startCoords, [], visited, endCoords);
@@ -25,7 +25,7 @@ function rSolveMaze(maze, cellCoords, path, visited, end) {
             if (solved.length > 0) return solved;
         }
         if (!cell.outer1) {
-            let solved = rSolveMaze(maze, cellCoords.outer0Adjacent(), path.slice(), visited, end);
+            let solved = rSolveMaze(maze, cellCoords.outer1Adjacent(), path.slice(), visited, end);
             if (solved.length > 0) return solved;
         }
     } else {
@@ -40,10 +40,11 @@ function rSolveMaze(maze, cellCoords, path, visited, end) {
     }
     let inner = cellCoords.innerAdjacent();
     if (cellCoords.hasDoublyLargeInnerAdjacent()) {
-        if (cellCoords.cell % 2 === 0 && !maze[inner.layer][inner.cell].outer0) {
+        let isFirstCell = cellCoords.cell % 2 === 0;
+        if (isFirstCell && !maze[inner.layer][inner.cell].outer0) {
             let solved = rSolveMaze(maze, inner, path.slice(), visited, end);
             if (solved.length > 0) return solved;
-        } else if (!maze[inner.layer][inner.cell].outer1) {
+        } else if (!isFirstCell && !maze[inner.layer][inner.cell].outer1) {
             let solved = rSolveMaze(maze, inner, path.slice(), visited, end);
             if (solved.length > 0) return solved;
         }
