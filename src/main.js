@@ -20,7 +20,7 @@ const createScene = function () {
         const angleIncr = 2 * Math.PI / maze[layer].length;
         const radius = INNER_RADIUS + CELL_HEIGHT * layer;
         for (let cell = 0, angle = 0; cell < maze[layer].length; cell++, angle += angleIncr) {
-            if (maze[layer][cell].north0) {
+            if (maze[layer][cell].outer0) {
                 mazeLines.push(
                     [
                         new BABYLON.Vector3(
@@ -51,7 +51,7 @@ const createScene = function () {
                     ]
                 );
             }
-            if (maze[layer][cell].north1) {
+            if (maze[layer][cell].outer1) {
                 mazeLines.push(
                     [
                         new BABYLON.Vector3(
@@ -82,7 +82,7 @@ const createScene = function () {
                     ]
                 );
             }
-            if (maze[layer][cell].east) {
+            if (maze[layer][cell].clockwise) {
                 mazeLines.push(
                     [
                         new BABYLON.Vector3(

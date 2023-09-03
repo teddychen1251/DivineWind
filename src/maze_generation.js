@@ -24,7 +24,7 @@ function generate_maze(layers, seed, start, end) {
         for (let j = 0; j < cellCount; j++) {
             const cell = new MazeCell();
             layer.push(cell);
-            if (i === 0) cell.knockEastWall();
+            if (i === 0) cell.knockClockwiseWall();
         }
         maze.push(layer);
     }
@@ -65,7 +65,7 @@ function generate_maze(layers, seed, start, end) {
                 if (cell.updateRootsAndMatch(outer)) {
                     continue;
                 } else {
-                    cell.knockNorthWall();
+                    cell.knockOuterWall();
                     cell.copyRoot(outer);
                     j--;
                 }
@@ -75,7 +75,7 @@ function generate_maze(layers, seed, start, end) {
                 if (cell.updateRootsAndMatch(outer_0)) {
                     continue;
                 } else {
-                    cell.knockNorth0Wall();
+                    cell.knockOuter0Wall();
                     cell.copyRoot(outer_0);
                     j--;
                 }
@@ -85,7 +85,7 @@ function generate_maze(layers, seed, start, end) {
                 if (cell.updateRootsAndMatch(outer_1)) {
                     continue;
                 } else {
-                    cell.knockNorth1Wall();
+                    cell.knockOuter1Wall();
                     cell.copyRoot(outer_1);
                     j--;
                 }
@@ -96,7 +96,7 @@ function generate_maze(layers, seed, start, end) {
                 if (cell.updateRootsAndMatch(clockwise)) {
                     continue;
                 } else {
-                    cell.knockEastWall();
+                    cell.knockClockwiseWall();
                     cell.copyRoot(clockwise);
                     j--;
                 }
@@ -139,5 +139,5 @@ function randIntFromZero(max) {
 function knockBorderWall(maze, location) {
     const coords = translateLocationToCoords(maze, location);
     const cell = maze[coords.layer][coords.cell];
-    cell.knockNorthWall();
+    cell.knockOuterWall();
 }
