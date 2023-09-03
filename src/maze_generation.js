@@ -137,7 +137,7 @@ function randIntFromZero(max) {
 }
 
 function knockBorderWall(maze, location) {
-    const coords = translateLocationToCoordsForWallBreaking(maze, location);
+    const coords = translateLocationToCoords(maze, location);
     const cell = maze[coords.layer][coords.cell];
     cell.knockNorthWall();
 }

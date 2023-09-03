@@ -15,6 +15,7 @@ const createScene = function () {
 
     let mazeLines = [];
     let broken = [];
+    // temporary show maze
     for (let layer = 0; layer < maze.length; layer++) {
         const angleIncr = 2 * Math.PI / maze[layer].length;
         const radius = INNER_RADIUS + CELL_HEIGHT * layer;
