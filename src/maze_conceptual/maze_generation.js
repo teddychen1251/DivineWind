@@ -136,8 +136,24 @@ function randIntFromZero(max) {
     return Math.floor(Math.random() * max);
 }
 
-function knockBorderWall(maze, location) {
-    const coords = translateLocationToCoords(maze, location);
-    const cell = maze[coords.layer][coords.cell];
+function knockBorderWall(mazeArr, location) {
+    const coords = scuffed(mazeArr, location);
+    const cell = mazeArr[coords.layer][coords.cell];
     cell.knockOuterWall();
+}
+
+function scuffed(maze, mazeLocation) {
+    switch (mazeLocation) {
+        case BOTTOM_CENTER:
+            return new MazeCoordinates(LAYERS, maze[LAYERS].length / 2);
+        case LEFT_CENTER:
+            return new MazeCoordinates(LAYERS, 3 * maze[LAYERS].length / 4);
+        case RIGHT_CENTER:
+            return new MazeCoordinates(LAYERS, maze[LAYERS].length / 4);
+        case TOP_CENTER:
+            return new MazeCoordinates(LAYERS, 0);
+        default:
+            console.error("Invalid maze location given: " + mazeLocation);
+            break;
+    }
 }

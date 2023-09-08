@@ -2,7 +2,7 @@
 function initGraphicalMaze(maze, scene) {
     const rotationLayers = [];
     for (let layer = 0; layer < maze.length; layer++) {      
-        let rotationLayer = new MazeRotationLayer(new BABYLON.TransformNode("layer " + layer, scene));
+        let rotationLayer = new MazeRotationLayer(new BABYLON.TransformNode("layer " + layer, scene), maze[layer].length);
         rotationLayers.push(rotationLayer);
         const angleIncr = 2 * Math.PI / maze[layer].length;
         const radius = INNER_RADIUS + CELL_HEIGHT * layer;
@@ -79,4 +79,5 @@ function initGraphicalMaze(maze, scene) {
             wall.setParent(rotationLayer.origin);
         }
     }
+    return rotationLayers;
 }
