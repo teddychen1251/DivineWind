@@ -15,7 +15,7 @@ const createScene = function () {
 
     let mazeLines = [];
     let broken = [];
-    let rotationLayers = initGraphicalMaze(maze.maze, scene);
+    let rotationLayers = initGraphicalMaze(maze.grid, scene);
     let offsets = [];
     for (let i = 0; i < rotationLayers.length; i++) {
         offsets.push(0);
@@ -37,7 +37,7 @@ const createScene = function () {
     }
     window.addEventListener("click", function() {
         let layer = 2;
-        let angle = 2 * Math.PI / maze.maze[layer].length;
+        let angle = 2 * Math.PI / maze.grid[layer].length;
         rotationLayers[layer].origin.rotate(BABYLON.Vector3.Backward(), angle);
         rotationLayers[layer].updateOffset(1);
         updateOffsets();

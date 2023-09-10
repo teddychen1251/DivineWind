@@ -7,7 +7,7 @@ function solveMaze(start, end, maze) {
 }
 // tbh we should use BFS to show the whole connected maze
 function rSolveMaze(maze, cellCoords, path, visited, end) {
-    let cell = maze.maze[cellCoords.layer][cellCoords.cell];
+    let cell = maze.grid[cellCoords.layer][cellCoords.cell];
     if (visited.has(cell)) {
         return [];
     }

@@ -1,21 +1,21 @@
 class Maze {
     constructor(layers, seed, start, end) {
-        this.maze = generate_maze(layers, seed, start, end);
+        this.grid = generate_maze(layers, seed, start, end);
         this.offsets = [];
-        for (let i = 0; i < this.maze.length; i++) {
+        for (let i = 0; i < this.grid.length; i++) {
             this.offsets.push(0);
         }
     }
 
     connectedNeighbors(coords) {
-        const currCell = this.maze[coords.layer][coords.cell];
+        const currCell = this.grid[coords.layer][coords.cell];
         const currOffset = this.offsets[coords.layer];
-        const currLayerCellCount = this.maze[coords.layer].length;
+        const currLayerCellCount = this.grid[coords.layer].length;
         let neighbors = [];
         // outer
-        if (coords.layer < this.maze.length - 1) {
+        if (coords.layer < this.grid.length - 1) {
             const outerOffset = this.offsets[coords.layer + 1];
-            const outerCellCount = this.maze[coords.layer + 1].length;
+            const outerCellCount = this.grid[coords.layer + 1].length;
             const hasTwoOuterAdjacent = 2 * currLayerCellCount === outerCellCount;
             if (hasTwoOuterAdjacent) {
                 const effectiveOffset = (2 * currOffset - outerOffset + outerCellCount) % outerCellCount;
@@ -36,13 +36,13 @@ class Maze {
         // inner
         if (coords.layer > 1) {
             const innerOffset = this.offsets[coords.layer - 1];
-            const innerCellCount = this.maze[coords.layer - 1].length;
+            const innerCellCount = this.grid[coords.layer - 1].length;
             const hasDoublyLargeInnerAdjacent = currLayerCellCount === 2 * innerCellCount;
             if (hasDoublyLargeInnerAdjacent) {
                 const effectiveCell = coords.cell + currOffset;
                 let offsetCell = (Math.floor(effectiveCell / 2) - innerOffset + innerCellCount) % innerCellCount;
                 const isFirstCell = effectiveCell % 2 === 0;
-                const innerCell = this.maze[coords.layer - 1][offsetCell];
+                const innerCell = this.grid[coords.layer - 1][offsetCell];
                 if (isFirstCell) {
                     if (!innerCell.outer0) {
                         neighbors.push(new MazeCoordinates(coords.layer - 1, offsetCell));
@@ -55,7 +55,7 @@ class Maze {
             } else {
                 const effectiveOffset = (currOffset - innerOffset + innerCellCount) % innerCellCount;
                 let offsetCell = (coords.cell + effectiveOffset) % currLayerCellCount;
-                const innerCell = this.maze[coords.layer - 1][offsetCell];
+                const innerCell = this.grid[coords.layer - 1][offsetCell];
                 if (!innerCell.outer0) {
                     neighbors.push(new MazeCoordinates(coords.layer - 1, offsetCell));
                 }
@@ -68,7 +68,7 @@ class Maze {
         }
         // counter-clockwise
         const counterClockwiseCell = (coords.cell - 1 + currLayerCellCount) % currLayerCellCount;
-        if (!this.maze[coords.layer][counterClockwiseCell].clockwise) {
+        if (!this.grid[coords.layer][counterClockwiseCell].clockwise) {
             neighbors.push(new MazeCoordinates(coords.layer, counterClockwiseCell));
         }
         return neighbors;
