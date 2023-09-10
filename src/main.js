@@ -3,23 +3,24 @@ const engine = new BABYLON.Engine(canvas, true);
 
 const maze = new Maze(LAYERS, 0, BOTTOM_CENTER, TOP_CENTER);
 
-const createScene = function () {
+const createScene = async function () {
     const scene = new BABYLON.Scene(engine);
     const camera = new BABYLON.UniversalCamera("camera1", 
-        new BABYLON.Vector3(0, 0, -100), scene);
+        new BABYLON.Vector3(0, 0, -3), scene);
     camera.setTarget(BABYLON.Vector3.Zero());
     camera.attachControl(canvas, true);
     const light = new BABYLON.HemisphericLight("light", 
         new BABYLON.Vector3(0, 1, 0), scene);
     light.intensity = 0.7;
 
-    let mazeLines = [];
-    let broken = [];
-    let rotationLayers = initGraphicalMaze(maze.grid, scene);
-    let offsets = [];
-    for (let i = 0; i < rotationLayers.length; i++) {
-        offsets.push(0);
-    }
+    const env = scene.createDefaultEnvironment();
+
+    const xr = await scene.createDefaultXRExperienceAsync({
+        floorMeshes: [env.ground],
+    });
+
+    let graphicalMaze = new GraphicalMaze(maze.grid, scene);
+    graphicalMaze.origin.rotation.x = Math.PI / 2;
 
     let solution = solveMaze(BOTTOM_CENTER, TOP_CENTER, maze);
     let solLines = [];
@@ -31,15 +32,38 @@ const createScene = function () {
 
 
     function updateOffsets() {
-        for (let i = 0; i < rotationLayers.length; i++) {
-            maze.offsets[i] = rotationLayers[i].offset;
+        for (let i = 0; i < graphicalMaze.rotationLayers.length; i++) {
+            maze.offsets[i] = graphicalMaze.rotationLayers[i].offset;
         }
     }
-    window.addEventListener("click", function() {
-        let layer = 2;
+
+    window.addEventListener("keydown", function(event) {
+        let layer = 3;
+        switch (event.key) {
+            case "1":
+                layer = 1;
+                break;
+            case "2":
+                layer = 2;
+                break;
+            case "3":
+                layer = 3;
+                break;
+            case "4":
+                layer = 4;
+                break;
+            case "5":
+                layer = 5;
+                break;
+            case "6":
+                layer = 6;
+                break;
+            default:
+                return;
+        }
         let angle = 2 * Math.PI / maze.grid[layer].length;
-        rotationLayers[layer].origin.rotate(BABYLON.Vector3.Backward(), angle);
-        rotationLayers[layer].updateOffset(1);
+        graphicalMaze.rotationLayers[layer].origin.rotate(BABYLON.Vector3.Backward(), angle);
+        graphicalMaze.rotationLayers[layer].updateOffset(1);
         updateOffsets();
         solution = solveMaze(BOTTOM_CENTER, TOP_CENTER, maze);
         solLines = [];
@@ -53,8 +77,8 @@ const createScene = function () {
     return scene;
 };
 const scene = createScene();
-engine.runRenderLoop(function () {
-        scene.render();
+engine.runRenderLoop(async function () {
+        (await scene).render();
 });
 window.addEventListener("resize", function () {
         engine.resize();

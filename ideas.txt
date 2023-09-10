@@ -26,3 +26,5 @@ part of the problem is that the maze is too open, rotating a junction is useless
  - delete less walls in the maze
 
  put offsets in new maze class
+
+ when you solve the circle, it becomes a twister that blows away the ships!!!
