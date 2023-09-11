@@ -30,9 +30,9 @@ const createScene = async function () {
                 const result = scene.pickWithRay(pointerRay, (mesh) => mesh === graphicalMaze.pickingPlane);
                 if (result.hit) {
                     const radius = BABYLON.Vector3.Distance(result.pickedPoint, graphicalMaze.origin.position);
-                    if (radius < INNER_RADIUS) {
-                        graphicalMaze.highlightLayer();
-                    }
+                    graphicalMaze.highlightLayer(radius);
+                } else {
+                    graphicalMaze.unhightlightLayers();
                 }
                 break;
               case BABYLON.PointerEventTypes.POINTERPICK:

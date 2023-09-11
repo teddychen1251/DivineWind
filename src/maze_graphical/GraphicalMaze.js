@@ -9,7 +9,16 @@ class GraphicalMaze {
         this.rotationLayers = initGraphicalMaze(mazeGrid, scene, this.origin);
     }
 
-    highlightLayer() {
-        this.rotationLayers[0].setWallColor(BABYLON.Color3.Red());
+    unhightlightLayers() {
+        for (let layer of this.rotationLayers) {
+            layer.setWallColor(BABYLON.Color3.Black());
+        }
+    }
+    highlightLayer(radius) {
+        this.unhightlightLayers();
+        let chosen = Math.floor((radius - INNER_RADIUS) / CELL_HEIGHT) + 1;
+        if (0 < chosen && chosen < LAYERS) {
+            this.rotationLayers[chosen].setWallColor(BABYLON.Color3.Red());
+        }
     }
 }
