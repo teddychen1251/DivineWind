@@ -13,14 +13,39 @@ const createScene = async function () {
         new BABYLON.Vector3(0, 1, 0), scene);
     light.intensity = 0.7;
 
-    const env = scene.createDefaultEnvironment();
+    // const env = scene.createDefaultEnvironment();
+
+    const graphicalMaze = new GraphicalMaze(maze.grid, scene);
+    // graphicalMaze.origin.rotation.x = Math.PI / 2;
 
     const xr = await scene.createDefaultXRExperienceAsync({
-        floorMeshes: [env.ground],
+        // floorMeshes: [env.ground],
+    });
+    const pointerRay = new BABYLON.Ray(new BABYLON.Vector3(), new BABYLON.Vector3());
+    xr.input.onControllerAddedObservable.add((input) => {
+        scene.onPointerObservable.add((pointerInfo) => {
+            switch (pointerInfo.type) {
+              case BABYLON.PointerEventTypes.POINTERMOVE:
+                input.getWorldPointerRayToRef(pointerRay);
+                const result = scene.pickWithRay(pointerRay, (mesh) => mesh === graphicalMaze.pickingPlane);
+                if (result.hit) {
+                    const radius = BABYLON.Vector3.Distance(result.pickedPoint, graphicalMaze.origin.position);
+                    if (radius < INNER_RADIUS) {
+                        graphicalMaze.highlightLayer();
+                    }
+                }
+                break;
+              case BABYLON.PointerEventTypes.POINTERPICK:
+                // console.log("POINTER PICK");
+                break;
+            }
+        });
+        input.onMotionControllerInitObservable.add((motionController) => {
+            
+ 
+        });
     });
 
-    let graphicalMaze = new GraphicalMaze(maze.grid, scene);
-    graphicalMaze.origin.rotation.x = Math.PI / 2;
 
     let solution = solveMaze(BOTTOM_CENTER, TOP_CENTER, maze);
     let solLines = [];

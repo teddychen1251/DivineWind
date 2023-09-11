@@ -4,7 +4,7 @@ function initGraphicalMaze(mazeGrid, scene, mazeOrigin) {
     for (let layer = 0; layer < mazeGrid.length; layer++) {
         let rotationOrigin = new BABYLON.TransformNode("layer " + layer, scene);
         rotationOrigin.setParent(mazeOrigin);
-        let rotationLayer = new MazeRotationLayer(rotationOrigin, mazeGrid[layer].length);
+        let rotationLayer = new MazeRotationLayer(rotationOrigin, mazeGrid[layer].length, scene);
         rotationLayers.push(rotationLayer);
         const angleIncr = 2 * Math.PI / mazeGrid[layer].length;
         const radius = INNER_RADIUS + CELL_HEIGHT * layer;
@@ -68,7 +68,9 @@ function initGraphicalMaze(mazeGrid, scene, mazeOrigin) {
                     cap: BABYLON.Mesh.CAP_ALL
                 };
                 let wall = BABYLON.MeshBuilder.CreateTube("clockwise wall", options, scene);
+                wall.isPickable = false;
                 wall.setParent(rotationLayer.origin);
+                rotationLayer.addWallMesh(wall);
             }
         }
         for (let path of outerWallPaths) {
@@ -79,7 +81,9 @@ function initGraphicalMaze(mazeGrid, scene, mazeOrigin) {
                 cap: BABYLON.Mesh.CAP_ALL
             };
             let wall = BABYLON.MeshBuilder.CreateTube("outer wall", options, scene);
+            wall.isPickable = false;
             wall.setParent(rotationLayer.origin);
+            rotationLayer.addWallMesh(wall);
         }
     }
     return rotationLayers;
