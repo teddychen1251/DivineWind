@@ -17,27 +17,41 @@ const createScene = async function () {
 
     const graphicalMaze = new GraphicalMaze(maze.grid, scene);
     // graphicalMaze.origin.rotation.x = Math.PI / 2;
-
     const xr = await scene.createDefaultXRExperienceAsync({
-        // floorMeshes: [env.ground],
+        pointerSelectionOptions: {
+            // preferredHandedness: "right"
+        },
     });
     const pointerRay = new BABYLON.Ray(new BABYLON.Vector3(), new BABYLON.Vector3());
     xr.input.onControllerAddedObservable.add((input) => {
+        if (input.inputSource.handedness === "left") return;
         scene.onPointerObservable.add((pointerInfo) => {
+            input.getWorldPointerRayToRef(pointerRay);
+            const result = scene.pickWithRay(pointerRay, (mesh) => mesh === graphicalMaze.pickingPlane);
             switch (pointerInfo.type) {
-              case BABYLON.PointerEventTypes.POINTERMOVE:
-                input.getWorldPointerRayToRef(pointerRay);
-                const result = scene.pickWithRay(pointerRay, (mesh) => mesh === graphicalMaze.pickingPlane);
-                if (result.hit) {
-                    const radius = BABYLON.Vector3.Distance(result.pickedPoint, graphicalMaze.origin.position);
-                    graphicalMaze.highlightLayer(radius);
-                } else {
+                case BABYLON.PointerEventTypes.POINTERDOWN:
+                    if (result.hit) {
+                        const radius = BABYLON.Vector3.Distance(result.pickedPoint, graphicalMaze.origin.position);
+                        graphicalMaze.initRotateLayer(radius, result.pickedPoint)
+                    }
+                    break;
+                case BABYLON.PointerEventTypes.POINTERMOVE:
+                    if (result.hit) {
+                        if (graphicalMaze.rotating) {
+                            graphicalMaze.rotateLayer(result.pickedPoint);
+                        } else {
+                            const radius = BABYLON.Vector3.Distance(result.pickedPoint, graphicalMaze.origin.position);
+                            graphicalMaze.highlightLayer(radius);
+                        }
+                    } else {
+                        graphicalMaze.unhightlightLayers();
+                        graphicalMaze.endRotateLayer();
+                    }
+                    break;
+                case BABYLON.PointerEventTypes.POINTERUP:
+                    graphicalMaze.endRotateLayer();
                     graphicalMaze.unhightlightLayers();
-                }
-                break;
-              case BABYLON.PointerEventTypes.POINTERPICK:
-                // console.log("POINTER PICK");
-                break;
+                    break;
             }
         });
         input.onMotionControllerInitObservable.add((motionController) => {

@@ -6,7 +6,12 @@ class GraphicalMaze {
         pickingPlaneMat.alpha = .2;
         this.pickingPlane.material = pickingPlaneMat;
         this.pickingPlane.setParent(this.origin);
+        this.pickingPlaneNormal = BABYLON.Vector3.Forward();
         this.rotationLayers = initGraphicalMaze(mazeGrid, scene, this.origin);
+        this.rotating = false;
+        this.rotatingLayer = -1;
+        this.initialRotatingVector = new BABYLON.Vector3();
+        this.currPickVector = new BABYLON.Vector3();
     }
 
     unhightlightLayers() {
@@ -20,5 +25,22 @@ class GraphicalMaze {
         if (0 < chosen && chosen < LAYERS) {
             this.rotationLayers[chosen].setWallColor(BABYLON.Color3.Red());
         }
+    }
+    initRotateLayer(radius, pickPoint) {
+        let chosen = Math.floor((radius - INNER_RADIUS) / CELL_HEIGHT) + 1;
+        if (0 < chosen && chosen < LAYERS) {
+            this.rotating = true;
+            this.rotatingLayer = chosen;
+            pickPoint.subtractToRef(this.origin.position, this.initialRotatingVector);
+
+        }
+    }
+    rotateLayer(pickPoint) {
+        pickPoint.subtractToRef(this.origin.position, this.currPickVector);
+        const angle = BABYLON.Vector3.GetAngleBetweenVectorsOnPlane(this.initialRotatingVector, this.currPickVector, this.pickingPlaneNormal);
+        this.rotationLayers[this.rotatingLayer].origin.rotation.z = angle;
+    }
+    endRotateLayer() {
+        this.rotating = false;
     }
 }
