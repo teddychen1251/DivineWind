@@ -9,7 +9,7 @@ class GraphicalMaze {
         this.pickingPlaneNormal = BABYLON.Vector3.Forward();
         this.rotationLayers = initGraphicalMaze(mazeGrid, scene, this.origin);
         this.rotating = false;
-        this.rotatingLayer = -1;
+        this.rotatingLayer = 0;
         this.initialRotatingVector = new BABYLON.Vector3();
         this.currPickVector = new BABYLON.Vector3();
     }
@@ -45,8 +45,10 @@ class GraphicalMaze {
         this.rotationLayers[this.rotatingLayer].snap(angle);
     }
     endRotateLayer() {
-        this.rotating = false;
-        this.rotationLayers[this.rotatingLayer].endRotate();
+        if (this.rotating) {
+            this.rotating = false;
+            this.rotationLayers[this.rotatingLayer].endRotate();
+        }
     }
     offsets() {
         let offsets = [];

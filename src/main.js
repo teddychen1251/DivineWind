@@ -16,7 +16,7 @@ const createScene = async function () {
     // const env = scene.createDefaultEnvironment();
 
     const graphicalMaze = new GraphicalMaze(maze.grid, scene);
-    // graphicalMaze.setRotationX(Math.PI / 2);
+    graphicalMaze.setRotationX(Math.PI / 2);
 
     const xr = await scene.createDefaultXRExperienceAsync({
         pointerSelectionOptions: {
