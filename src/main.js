@@ -2,6 +2,7 @@ const canvas = document.getElementById("renderCanvas");
 const engine = new BABYLON.Engine(canvas, true);
 
 const maze = new Maze(LAYERS, 0, BOTTOM_CENTER, TOP_CENTER);
+let timestamp = new Date();
 
 const createScene = async function () {
     const scene = new BABYLON.Scene(engine);
@@ -17,6 +18,12 @@ const createScene = async function () {
 
     const graphicalMaze = new GraphicalMaze(maze.grid, scene);
     graphicalMaze.setRotationX(Math.PI / 2);
+    scene.registerBeforeRender(() => {
+        let prev = timestamp;
+        timestamp = new Date();
+        let deltaTimeSeconds = (timestamp - prev) / 1000;
+        graphicalMaze.update(deltaTimeSeconds);
+    });
 
     const xr = await scene.createDefaultXRExperienceAsync({
         pointerSelectionOptions: {
