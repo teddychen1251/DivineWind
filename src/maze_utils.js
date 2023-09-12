@@ -1,14 +1,14 @@
 // assumes no offsets
-function translateLocationToCoords(mazeGrid, mazeLocation) {
+function translateLocationToCoords(layers, mazeGrid, mazeLocation) {
     switch (mazeLocation) {
         case BOTTOM_CENTER:
-            return new MazeCoordinates(LAYERS, mazeGrid[LAYERS].length / 2);
+            return new MazeCoordinates(layers, mazeGrid[layers].length / 2);
         case LEFT_CENTER:
-            return new MazeCoordinates(LAYERS, 3 * mazeGrid[LAYERS].length / 4);
+            return new MazeCoordinates(layers, 3 * mazeGrid[layers].length / 4);
         case RIGHT_CENTER:
-            return new MazeCoordinates(LAYERS, mazeGrid[LAYERS].length / 4);
+            return new MazeCoordinates(layers, mazeGrid[layers].length / 4);
         case TOP_CENTER:
-            return new MazeCoordinates(LAYERS, 0);
+            return new MazeCoordinates(layers, 0);
         default:
             console.error("Invalid maze location given: " + mazeLocation);
             break;

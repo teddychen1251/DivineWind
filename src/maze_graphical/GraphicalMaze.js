@@ -1,7 +1,8 @@
 class GraphicalMaze {
     constructor(maze, scene) {
+        this.maze = maze;
         this.origin = new BABYLON.TransformNode("maze origin", scene);
-        this.pickingPlane = BABYLON.MeshBuilder.CreateDisc("picking disc plane", { radius: INNER_RADIUS + LAYERS * CELL_HEIGHT }, scene);
+        this.pickingPlane = BABYLON.MeshBuilder.CreateDisc("picking disc plane", { radius: INNER_RADIUS + (maze.grid.length - 1) * CELL_HEIGHT }, scene);
         const pickingPlaneMat = new BABYLON.StandardMaterial("picking plane mat", scene);
         pickingPlaneMat.alpha = .2;
         this.pickingPlane.material = pickingPlaneMat;
@@ -12,6 +13,13 @@ class GraphicalMaze {
         this.rotatingLayer = 0;
         this.initialRotatingVector = new BABYLON.Vector3();
         this.currPickVector = new BABYLON.Vector3();
+        this.timestamp = new Date();
+        scene.registerBeforeRender(() => {
+            let prev = this.timestamp;
+            this.timestamp = new Date();
+            let deltaTimeSeconds = (this.timestamp - prev) / 1000;
+            this.update(deltaTimeSeconds);
+        });
     }
     update(deltaTime) {
         for (let layer of this.rotationLayers) {
@@ -31,13 +39,13 @@ class GraphicalMaze {
     highlightLayer(radius) {
         this.unhightlightLayers();
         let chosen = Math.floor((radius - INNER_RADIUS) / CELL_HEIGHT) + 1;
-        if (0 < chosen && chosen < LAYERS) {
+        if (0 < chosen && chosen < this.maze.grid.length - 1) {
             this.rotationLayers[chosen].setWallColor(BABYLON.Color3.Red());
         }
     }
     initRotateLayer(radius, pickPoint) {
         let chosen = Math.floor((radius - INNER_RADIUS) / CELL_HEIGHT) + 1;
-        if (0 < chosen && chosen < LAYERS) {
+        if (0 < chosen && chosen < this.maze.grid.length - 1) {
             this.rotating = true;
             this.rotatingLayer = chosen;
             pickPoint.subtractToRef(this.origin.position, this.initialRotatingVector);
@@ -61,5 +69,8 @@ class GraphicalMaze {
             offsets.push(layer.offset);
         }
         return offsets;
+    }
+    destroy() {
+        this.origin.dispose();
     }
 }

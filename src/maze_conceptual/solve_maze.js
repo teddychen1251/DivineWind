@@ -1,6 +1,6 @@
 function solveMaze(start, end, maze) {
-    const startCoords = translateLocationToCoords(maze.grid, start);
-    const endCoords = translateLocationToCoords(maze.grid, end);
+    const startCoords = translateLocationToCoords(maze.grid.length - 1, maze.grid, start);
+    const endCoords = translateLocationToCoords(maze.grid.length - 1, maze.grid, end);
     // put MazeCells here to check the reference
     let visited = new Set();
     return rSolveMaze(maze, startCoords, [], visited, endCoords);

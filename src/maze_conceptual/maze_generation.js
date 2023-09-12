@@ -106,14 +106,14 @@ function generate_maze(layers, seed, start, end) {
         }
     }
 
-    knockBorderWall(maze, start);
-    knockBorderWall(maze, end);
+    knockBorderWall(layers, maze, start);
+    knockBorderWall(layers, maze, end);
 
     return maze;
 }
 
-function knockBorderWall(mazeArr, location) {
-    const coords = translateLocationToCoords(mazeArr, location);
+function knockBorderWall(layers, mazeArr, location) {
+    const coords = translateLocationToCoords(layers, mazeArr, location);
     const cell = mazeArr[coords.layer][coords.cell];
     cell.knockOuterWall();
 }

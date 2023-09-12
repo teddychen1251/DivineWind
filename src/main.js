@@ -2,11 +2,6 @@ const canvas = document.getElementById("renderCanvas");
 const engine = new BABYLON.Engine(canvas, true);
 
 const pather = new MazePather();
-const maze = new Maze(LAYERS, 0, BOTTOM_CENTER, TOP_CENTER);
-do {
-    maze.scrambleOffsets();
-} while (pather.solve(maze) > 0);
-let timestamp = new Date();
 
 const createScene = async function () {
     const scene = new BABYLON.Scene(engine);
@@ -19,15 +14,19 @@ const createScene = async function () {
     light.intensity = 0.7;
 
     // const env = scene.createDefaultEnvironment();
+    let currentLevel = 0;
+    const mazes = [];
+    for (let i = 3; i < 11; i++) {
+        const maze = new Maze(i, 0, BOTTOM_CENTER, TOP_CENTER);
+        do {
+            maze.scrambleOffsets();
+        } while (pather.solve(maze).length > 0);
+        mazes.push(maze);
+    }
 
-    const graphicalMaze = new GraphicalMaze(maze, scene);
-    graphicalMaze.setRotationX(Math.PI / 2);
-    scene.registerBeforeRender(() => {
-        let prev = timestamp;
-        timestamp = new Date();
-        let deltaTimeSeconds = (timestamp - prev) / 1000;
-        graphicalMaze.update(deltaTimeSeconds);
-    });
+    let graphicalMaze = [new GraphicalMaze(mazes[currentLevel], scene)];
+    graphicalMaze[0].setRotationX(Math.PI / 2);
+
 
     const xr = await scene.createDefaultXRExperienceAsync({
         pointerSelectionOptions: {
@@ -40,32 +39,39 @@ const createScene = async function () {
         if (input.inputSource.handedness === "left") return;
         scene.onPointerObservable.add((pointerInfo) => {
             input.getWorldPointerRayToRef(pointerRay);
-            const result = scene.pickWithRay(pointerRay, (mesh) => mesh === graphicalMaze.pickingPlane);
+            const result = scene.pickWithRay(pointerRay, (mesh) => mesh === graphicalMaze[0].pickingPlane);
             switch (pointerInfo.type) {
                 case BABYLON.PointerEventTypes.POINTERDOWN:
                     if (result.hit) {
-                        const radius = BABYLON.Vector3.Distance(result.pickedPoint, graphicalMaze.origin.position);
-                        graphicalMaze.initRotateLayer(radius, result.pickedPoint)
+                        const radius = BABYLON.Vector3.Distance(result.pickedPoint, graphicalMaze[0].origin.position);
+                        graphicalMaze[0].initRotateLayer(radius, result.pickedPoint)
                     }
                     break;
                 case BABYLON.PointerEventTypes.POINTERMOVE:
                     if (result.hit) {
-                        if (graphicalMaze.rotating) {
-                            graphicalMaze.rotateLayer(result.pickedPoint);
+                        if (graphicalMaze[0].rotating) {
+                            graphicalMaze[0].rotateLayer(result.pickedPoint);
                         } else {
-                            const radius = BABYLON.Vector3.Distance(result.pickedPoint, graphicalMaze.origin.position);
-                            graphicalMaze.highlightLayer(radius);
+                            const radius = BABYLON.Vector3.Distance(result.pickedPoint, graphicalMaze[0].origin.position);
+                            graphicalMaze[0].highlightLayer(radius);
                         }
                     } else {
-                        graphicalMaze.unhightlightLayers();
-                        graphicalMaze.endRotateLayer();
+                        graphicalMaze[0].unhightlightLayers();
+                        graphicalMaze[0].endRotateLayer();
                     }
                     break;
                 case BABYLON.PointerEventTypes.POINTERUP:
-                    graphicalMaze.endRotateLayer();
-                    graphicalMaze.unhightlightLayers();
-                    maze.setOffsets(graphicalMaze.offsets());
-                    pather.solveAndShow(maze);
+                    graphicalMaze[0].endRotateLayer();
+                    graphicalMaze[0].unhightlightLayers();
+                    mazes[currentLevel].setOffsets(graphicalMaze[0].offsets());
+                    pather.solveAndShow(mazes[currentLevel]);
+                    if (pather.solution.length > 0) {
+                        currentLevel++;
+                        graphicalMaze[0].destroy();
+                        graphicalMaze[0] = new GraphicalMaze(mazes[currentLevel], scene);
+                        graphicalMaze[0].setRotationX(Math.PI / 2);
+                        pather.drawnPath.dispose();
+                    }
                     break;
             }
         });
