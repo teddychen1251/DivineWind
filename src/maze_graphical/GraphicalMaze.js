@@ -13,7 +13,11 @@ class GraphicalMaze {
         this.initialRotatingVector = new BABYLON.Vector3();
         this.currPickVector = new BABYLON.Vector3();
     }
-
+    setRotationX(angle) {
+        this.origin.rotation.x = angle;
+        this.pickingPlaneNormal.y = Math.sin(angle);
+        this.pickingPlaneNormal.z = Math.cos(angle);
+    }
     unhightlightLayers() {
         for (let layer of this.rotationLayers) {
             layer.setWallColor(BABYLON.Color3.Black());
@@ -42,6 +46,7 @@ class GraphicalMaze {
     }
     endRotateLayer() {
         this.rotating = false;
+        this.rotationLayers[this.rotatingLayer].endRotate();
     }
     offsets() {
         let offsets = [];

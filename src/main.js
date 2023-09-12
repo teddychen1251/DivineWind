@@ -16,7 +16,8 @@ const createScene = async function () {
     // const env = scene.createDefaultEnvironment();
 
     const graphicalMaze = new GraphicalMaze(maze.grid, scene);
-    // graphicalMaze.origin.rotation.x = Math.PI / 2;
+    // graphicalMaze.setRotationX(Math.PI / 2);
+
     const xr = await scene.createDefaultXRExperienceAsync({
         pointerSelectionOptions: {
             preferredHandedness: "right",
@@ -40,15 +41,6 @@ const createScene = async function () {
                     if (result.hit) {
                         if (graphicalMaze.rotating) {
                             graphicalMaze.rotateLayer(result.pickedPoint);
-                            maze.setOffsets(graphicalMaze.offsets());
-                            solution = solveMaze(BOTTOM_CENTER, TOP_CENTER, maze);
-                            solLines = [];
-                            for (let i = 1; i < solution.length; i++) {
-                                solLines.push([translateMazeCoordinatesToWorldPos(maze, solution[i - 1]), translateMazeCoordinatesToWorldPos(maze, solution[i])]);
-                            }
-                            solLineSys.dispose();
-                            solLineSys = BABYLON.MeshBuilder.CreateLineSystem("solution path", { lines: solLines });
-                            solLineSys.color = new BABYLON.Color3(0, 1, 0);
                         } else {
                             const radius = BABYLON.Vector3.Distance(result.pickedPoint, graphicalMaze.origin.position);
                             graphicalMaze.highlightLayer(radius);
@@ -61,6 +53,7 @@ const createScene = async function () {
                 case BABYLON.PointerEventTypes.POINTERUP:
                     graphicalMaze.endRotateLayer();
                     graphicalMaze.unhightlightLayers();
+                    maze.setOffsets(graphicalMaze.offsets());
                     break;
             }
         });
@@ -71,14 +64,13 @@ const createScene = async function () {
     });
 
 
-    let solution = solveMaze(BOTTOM_CENTER, TOP_CENTER, maze);
-    let solLines = [];
-    for (let i = 1; i < solution.length; i++) {
-        solLines.push([translateMazeCoordinatesToWorldPos(maze, solution[i - 1]), translateMazeCoordinatesToWorldPos(maze, solution[i])]);
-    }
-    let solLineSys = BABYLON.MeshBuilder.CreateLineSystem("solution path", { lines: solLines });
-    solLineSys.color = new BABYLON.Color3(0, 1, 0);
-
+    // let solution = solveMaze(BOTTOM_CENTER, TOP_CENTER, maze);
+    // let solLines = [];
+    // for (let i = 1; i < solution.length; i++) {
+    //     solLines.push([translateMazeCoordinatesToWorldPos(maze, solution[i - 1]), translateMazeCoordinatesToWorldPos(maze, solution[i])]);
+    // }
+    // let solLineSys = BABYLON.MeshBuilder.CreateLineSystem("solution path", { lines: solLines });
+    // solLineSys.color = new BABYLON.Color3(0, 1, 0);
     return scene;
 };
 const scene = createScene();
