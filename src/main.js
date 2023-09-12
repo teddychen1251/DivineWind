@@ -19,7 +19,8 @@ const createScene = async function () {
     // graphicalMaze.origin.rotation.x = Math.PI / 2;
     const xr = await scene.createDefaultXRExperienceAsync({
         pointerSelectionOptions: {
-            // preferredHandedness: "right"
+            preferredHandedness: "right",
+            disableSwitchOnClick: true
         },
     });
     const pointerRay = new BABYLON.Ray(new BABYLON.Vector3(), new BABYLON.Vector3());
