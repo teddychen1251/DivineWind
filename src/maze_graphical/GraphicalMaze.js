@@ -38,7 +38,7 @@ class GraphicalMaze {
     rotateLayer(pickPoint) {
         pickPoint.subtractToRef(this.origin.position, this.currPickVector);
         const angle = BABYLON.Vector3.GetAngleBetweenVectorsOnPlane(this.initialRotatingVector, this.currPickVector, this.pickingPlaneNormal);
-        this.rotationLayers[this.rotatingLayer].origin.rotation.z = angle;
+        this.rotationLayers[this.rotatingLayer].snap(angle);
     }
     endRotateLayer() {
         this.rotating = false;
