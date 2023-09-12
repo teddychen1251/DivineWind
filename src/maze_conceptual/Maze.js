@@ -73,4 +73,7 @@ class Maze {
         }
         return neighbors;
     }
+    setOffsets(offsets) {
+        this.offsets = offsets;
+    }
 }

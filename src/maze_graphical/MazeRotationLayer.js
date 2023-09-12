@@ -31,8 +31,9 @@ class MazeRotationLayer {
         if (angle < 0) {
             angle += 2 * Math.PI;
         }
-        let snapAngle = this.snapAngles[this.binarySearch(angle)];
-        this.origin.rotation.z = snapAngle;
+        this.offset = this.binarySearch(angle);
+        let snapAngle = this.snapAngles[this.offset];
+        this.origin.rotation.z = -snapAngle;
     }
     binarySearch(angle) {
         let start = 0;
