@@ -21,5 +21,5 @@ function translateMazeCoordinatesToWorldPos(maze, mazeCoords) {
     let angleIncr = 2 * Math.PI / layerCellCount;
     let effectiveCell = (mazeCoords.cell + maze.offsets[mazeCoords.layer]) % layerCellCount;
     let angle = (effectiveCell + 0.5) * angleIncr;
-    return new BABYLON.Vector3(Math.sin(angle) * radius, Math.cos(angle) * radius, 0);
+    return new BABYLON.Vector3(Math.sin(angle) * radius, 0, Math.cos(angle) * radius);
 }

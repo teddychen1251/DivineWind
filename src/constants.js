@@ -4,4 +4,4 @@ const WALL_WIDTH = 0.01;
 const INNER_RADIUS = .2;
 const LAYERS = 7;
 const ANGLE_EQUALITY_THRESHOLD = 0.003;
-const ANGULAR_SPEED = 0.3;
+const ANGULAR_SPEED = 0.4;

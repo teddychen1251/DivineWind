@@ -61,6 +61,7 @@ const createScene = async function () {
                     graphicalMaze.endRotateLayer();
                     graphicalMaze.unhightlightLayers();
                     maze.setOffsets(graphicalMaze.offsets());
+                    pather.solveAndShow(maze);
                     break;
             }
         });
@@ -71,13 +72,9 @@ const createScene = async function () {
     });
 
 
-    // let solution = solveMaze(BOTTOM_CENTER, TOP_CENTER, maze);
-    // let solLines = [];
-    // for (let i = 1; i < solution.length; i++) {
-    //     solLines.push([translateMazeCoordinatesToWorldPos(maze, solution[i - 1]), translateMazeCoordinatesToWorldPos(maze, solution[i])]);
-    // }
-    // let solLineSys = BABYLON.MeshBuilder.CreateLineSystem("solution path", { lines: solLines });
-    // solLineSys.color = new BABYLON.Color3(0, 1, 0);
+    let pather = new MazePather();
+    pather.solveAndShow(maze);
+    
     return scene;
 };
 const scene = createScene();

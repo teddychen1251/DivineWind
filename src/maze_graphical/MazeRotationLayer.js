@@ -34,14 +34,6 @@ class MazeRotationLayer {
             }
         }
     }
-
-    updateOffset() {
-        this.offset += num;
-        this.offset %= cellCount;
-        if (this.offset < 0) {
-            this.offset += cellCount;
-        }
-    }
     addWallMesh(mesh) {
         this.wallMeshes.push(mesh);
         mesh.material = this.wallMaterial;
@@ -58,8 +50,8 @@ class MazeRotationLayer {
     }
     endRotate() {
         // find nearest snap
-        let offset = this.binarySearch(2 * Math.PI - this.origin.rotation.z);
-        let snapAngle = this.snapAngles[offset];
+        this.offset = this.binarySearch(2 * Math.PI - this.origin.rotation.z);
+        let snapAngle = this.snapAngles[this.offset];
         // this.origin.rotation.z = -snapAngle;
         this.currentAngle = 2 * Math.PI - snapAngle;
     }
