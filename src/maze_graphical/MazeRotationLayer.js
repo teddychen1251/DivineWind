@@ -1,19 +1,18 @@
 class MazeRotationLayer {
-    constructor(origin, cellCount, scene) {
+    constructor(origin, cellCount, scene, offset) {
         this.origin = origin;
         this.wallMeshes = [];
         this.wallMaterial = new BABYLON.StandardMaterial("wall mat", scene);
-        this.offset = 0;
-        this.tempOffset = 0;
+        this.offset = offset;
         this.cellCount = cellCount;
         this.snapAngles = [];
-        this.targetAngle = 0;
         this.currentAngle = 0;
-        this.rotatinglockwise = true;
         let angleIncr = 2 * Math.PI / cellCount;
         for (let angle = 0, i = 0; i < cellCount; i++, angle += angleIncr) {
             this.snapAngles.push(angle);
         }
+        this.currentAngle = 2 * Math.PI - this.snapAngles[this.offset];
+        // this.origin.rotation.z = this.currentAngle;
     }
     update(deltaTime) {
         const snapAngleDiff = Math.abs(this.origin.rotation.z - this.currentAngle);
@@ -32,6 +31,8 @@ class MazeRotationLayer {
                     this.origin.rotation.z += deltaTime * ANGULAR_SPEED
                 }
             }
+        } else {
+            this.origin.rotation.z = this.currentAngle;
         }
     }
     addWallMesh(mesh) {

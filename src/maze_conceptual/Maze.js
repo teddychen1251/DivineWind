@@ -76,4 +76,9 @@ class Maze {
     setOffsets(offsets) {
         this.offsets = offsets;
     }
+    scrambleOffsets() {
+        for (let i = 1; i < this.grid.length - 1; i++) {
+            this.offsets[i] = randIntFromZero(this.grid[i].length);
+        }
+    }
 }

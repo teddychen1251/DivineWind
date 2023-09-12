@@ -1,5 +1,5 @@
 class GraphicalMaze {
-    constructor(mazeGrid, scene) {
+    constructor(maze, scene) {
         this.origin = new BABYLON.TransformNode("maze origin", scene);
         this.pickingPlane = BABYLON.MeshBuilder.CreateDisc("picking disc plane", { radius: INNER_RADIUS + LAYERS * CELL_HEIGHT }, scene);
         const pickingPlaneMat = new BABYLON.StandardMaterial("picking plane mat", scene);
@@ -7,7 +7,7 @@ class GraphicalMaze {
         this.pickingPlane.material = pickingPlaneMat;
         this.pickingPlane.setParent(this.origin);
         this.pickingPlaneNormal = BABYLON.Vector3.Forward();
-        this.rotationLayers = initGraphicalMaze(mazeGrid, scene, this.origin);
+        this.rotationLayers = initGraphicalMaze(maze, scene, this.origin);
         this.rotating = false;
         this.rotatingLayer = 0;
         this.initialRotatingVector = new BABYLON.Vector3();

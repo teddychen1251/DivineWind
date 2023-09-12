@@ -1,18 +1,18 @@
 // draw maze and init rotation layers
-function initGraphicalMaze(mazeGrid, scene, mazeOrigin) {
+function initGraphicalMaze(maze, scene, mazeOrigin) {
     const rotationLayers = [];
-    for (let layer = 0; layer < mazeGrid.length; layer++) {
+    for (let layer = 0; layer < maze.grid.length; layer++) {
         let rotationOrigin = new BABYLON.TransformNode("layer " + layer, scene);
         rotationOrigin.setParent(mazeOrigin);
-        let rotationLayer = new MazeRotationLayer(rotationOrigin, mazeGrid[layer].length, scene);
+        let rotationLayer = new MazeRotationLayer(rotationOrigin, maze.grid[layer].length, scene, maze.offsets[layer]);
         rotationLayers.push(rotationLayer);
-        const angleIncr = 2 * Math.PI / mazeGrid[layer].length;
+        const angleIncr = 2 * Math.PI / maze.grid[layer].length;
         const radius = INNER_RADIUS + CELL_HEIGHT * layer;
         // draw maze walls
         let outerWallPaths = [[]]; // holds the paths for outer walls
-        for (let cell = 0, angle = 0; cell < mazeGrid[layer].length; cell++, angle += angleIncr) {
+        for (let cell = 0, angle = 0; cell < maze.grid[layer].length; cell++, angle += angleIncr) {
             let currOuterWallPath = outerWallPaths[outerWallPaths.length - 1];
-            if (mazeGrid[layer][cell].outer0) {
+            if (maze.grid[layer][cell].outer0) {
                 if (currOuterWallPath.length === 0) {
                     currOuterWallPath.push(
                         new BABYLON.Vector3(radius * Math.sin(angle), radius * Math.cos(angle), 0)
@@ -29,7 +29,7 @@ function initGraphicalMaze(mazeGrid, scene, mazeOrigin) {
                 outerWallPaths.push([]);
                 currOuterWallPath = outerWallPaths[outerWallPaths.length - 1];
             }
-            if (mazeGrid[layer][cell].outer1) {
+            if (maze.grid[layer][cell].outer1) {
                 if (currOuterWallPath.length === 0) {
                     currOuterWallPath.push(
                         new BABYLON.Vector3(
@@ -50,7 +50,7 @@ function initGraphicalMaze(mazeGrid, scene, mazeOrigin) {
                 outerWallPaths.push([]);
                 currOuterWallPath = outerWallPaths[outerWallPaths.length - 1];
             }
-            if (mazeGrid[layer][cell].clockwise) {
+            if (maze.grid[layer][cell].clockwise) {
                 let options = {
                     path: [
                         new BABYLON.Vector3(
