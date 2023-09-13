@@ -104,22 +104,6 @@ const createScene = async function () {
     gameState.scene = scene;
     gameState.shipManager = new ShipManager(scene, 100, 50);
 
-    window.addEventListener("keydown", function(event) {
-        switch (event.key) {
-            case "s":
-                // start game
-                gameState.startLevelTimer();
-                gameState.shipManager.startWave(LEVEL_TIME, SHIP_SPEED, (1 + gameState.currentLevel) * 10);
-                break;
-            case "w":
-                // end level
-                gameState.endLevel(scene);
-                break;
-            default:
-                return;
-        }
-    });
-
     scene.registerBeforeRender(() => {
         gameState.decrementTimer();
         if (gameState.lost) {
@@ -176,6 +160,7 @@ const createScene = async function () {
                     }
                     break;
                 case BABYLON.PointerEventTypes.POINTERUP:
+                    if (gameState.cooling) return;
                     gameState.graphicalMaze.endRotateLayer();
                     gameState.graphicalMaze.unhightlightLayers();
                     mazes[gameState.currentLevel].setOffsets(gameState.graphicalMaze.offsets());
