@@ -13,6 +13,7 @@ for (let i = 3; i < 3 + LEVELS; i++) {
 const gameState = {
     currentLevel: 0,
     scene: undefined,
+    xr: undefined,
     graphicalMaze: undefined,
     shipManager: undefined,
     timer: LEVEL_TIME,
@@ -39,7 +40,7 @@ const gameState = {
         this.endLevelTimer();
         if (!this.lost) {
             if (this.currentLevel === mazes.length - 1) {
-                console.log('you win');
+                this.xr.baseExperience.exitXRAsync();
             }
             this.currentLevel++;
             gameState.graphicalMaze.destroy();
@@ -62,6 +63,7 @@ const gameState = {
             if (this.timer <= 0) {
                 this.endLevelTimer();
                 this.lost = true;
+                this.xr.baseExperience.exitXRAsync();
             }
         } else if (this.cooling) {
             this.timer -= deltaTimeSeconds;
@@ -106,9 +108,6 @@ const createScene = async function () {
 
     scene.registerBeforeRender(() => {
         gameState.decrementTimer();
-        if (gameState.lost) {
-            xr.baseExperience.exitXRAsync();
-        }
     });
 
     const xr = await scene.createDefaultXRExperienceAsync({
@@ -117,6 +116,7 @@ const createScene = async function () {
             disableSwitchOnClick: true
         },
     });
+    gameState.xr = xr;
     xr.baseExperience.onStateChangedObservable.add((state) => {
         switch (state) {
             case BABYLON.WebXRState.IN_XR:
