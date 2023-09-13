@@ -3,7 +3,7 @@ const engine = new BABYLON.Engine(canvas, true);
 
 const pather = new MazePather();
 const mazes = [];
-for (let i = 3; i < 11; i++) {
+for (let i = 3; i < 3 + LEVELS; i++) {
     const maze = new Maze(i, 0, BOTTOM_CENTER, TOP_CENTER);
     do {
         maze.scrambleOffsets();
@@ -13,7 +13,46 @@ for (let i = 3; i < 11; i++) {
 const gameState = {
     currentLevel: 0,
     graphicalMaze: undefined,
-    levelTimer: LEVEL_TIME
+    shipManager: undefined,
+    levelTimer: LEVEL_TIME,
+    timestamp: new Date(),
+    timing: false,
+    lost: false,
+    startTimer: function() {
+        this.levelTimer = LEVEL_TIME;
+        this.timestamp = new Date();
+        this.timing = true;
+    },
+    endTimer: function() {
+        this.timing = false;
+    },
+    nextLevel: function(scene) {
+        this.endTimer();
+        if (!this.lost) {
+            if (this.currentLevel === mazes.length - 1) {
+                console.log('you win');
+            }
+            this.currentLevel++;
+            this.startTimer();
+            gameState.graphicalMaze.destroy();
+            gameState.graphicalMaze = new GraphicalMaze(mazes[gameState.currentLevel], scene);
+            gameState.graphicalMaze.origin.position.y = 1;
+            this.shipManager.startWave(LEVEL_TIME, SHIP_SPEED, (1 + this.currentLevel) * 10);
+        }
+    },
+    decrementTimer: function() {
+        if (this.timing) {
+            let prev = this.timestamp;
+            this.timestamp = new Date();
+            let deltaTimeSeconds = (this.timestamp - prev) / 1000;
+            this.levelTimer -= deltaTimeSeconds;
+            if (this.levelTimer <= 0) {
+                this.endTimer();
+                this.lost = true;
+                console.log('you lose');
+            }
+        }
+    }
 }
 
 const createScene = async function () {
@@ -44,12 +83,30 @@ const createScene = async function () {
     ground.position.y = 0.01;
     ground.position.z = -50;
     
-    let spawner = new ShipSpawner(scene, 100, 50);
-    spawner.startWave(LEVEL_TIME, SHIP_SPEED);
+    gameState.shipManager = new ShipManager(scene, 100, 50);
+
+    window.addEventListener("keydown", function(event) {
+        switch (event.key) {
+            case "s":
+                // start game
+                gameState.startTimer();
+                gameState.shipManager.startWave(LEVEL_TIME, SHIP_SPEED, (1 + gameState.currentLevel) * 10);
+                break;
+            case "w":
+                // end level
+                gameState.nextLevel(scene);
+                break;
+            default:
+                return;
+        }
+    });
+
+    scene.registerBeforeRender(() => {
+        gameState.decrementTimer();
+    });
 
     gameState.graphicalMaze = new GraphicalMaze(mazes[gameState.currentLevel], scene);
-    gameState.graphicalMaze.setRotationX(Math.PI / 2);
-    gameState.graphicalMaze.origin.position.z = 5;
+    gameState.graphicalMaze.origin.position.y = 1;
 
     const xr = await scene.createDefaultXRExperienceAsync({
         pointerSelectionOptions: {
@@ -89,18 +146,11 @@ const createScene = async function () {
                     mazes[gameState.currentLevel].setOffsets(gameState.graphicalMaze.offsets());
                     pather.solveAndShow(mazes[gameState.currentLevel]);
                     if (pather.solution.length > 0) {
-                        gameState.currentLevel++;
-                        gameState.graphicalMaze.destroy();
-                        gameState.graphicalMaze = new GraphicalMaze(mazes[gameState.currentLevel], scene);
-                        gameState.graphicalMaze.setRotationX(Math.PI / 2);
+                        gameState.nextLevel();
                         pather.drawnPath.dispose();
                     }
                     break;
             }
-        });
-        input.onMotionControllerInitObservable.add((motionController) => {
-            
- 
         });
     });
     

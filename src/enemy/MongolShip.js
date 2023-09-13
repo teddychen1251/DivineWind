@@ -44,11 +44,14 @@ class MongolShip {
             }
         });
     }
-
     setPosition(x, y, z) {
         this.origin.position.x = x;
         this.origin.position.y = y;
         this.origin.position.z = z;
+    }
+    resetTraveling() {
+        this.traveling = true;
+        this.timestamp = new Date();
     }
 
 }

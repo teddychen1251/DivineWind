@@ -1,4 +1,4 @@
-class ShipSpawner {
+class ShipManager {
     constructor(scene, shipCount, waveWidth) {
         this.ships = [];
         this.waveWidth = waveWidth;
@@ -14,7 +14,7 @@ class ShipSpawner {
                 0,
                 minDistance + (i === 0 ? 0 : this.waveWidth * Math.random())
             )
-            this.ships[i].traveling = true;
+            this.ships[i].resetTraveling();
         }
     }
 }
