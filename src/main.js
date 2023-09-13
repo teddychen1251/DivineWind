@@ -12,44 +12,63 @@ for (let i = 3; i < 3 + LEVELS; i++) {
 }
 const gameState = {
     currentLevel: 0,
+    scene: undefined,
     graphicalMaze: undefined,
     shipManager: undefined,
-    levelTimer: LEVEL_TIME,
+    timer: LEVEL_TIME,
     timestamp: new Date(),
     timing: false,
+    cooling: false,
     lost: false,
-    startTimer: function() {
-        this.levelTimer = LEVEL_TIME;
+    startLevelTimer: function() {
+        this.timer = LEVEL_TIME;
         this.timestamp = new Date();
         this.timing = true;
     },
-    endTimer: function() {
+    endLevelTimer: function() {
         this.timing = false;
     },
-    nextLevel: function(scene) {
-        this.endTimer();
+    startCooldownTimer: function() {
+        this.cooling = true;
+        this.timer = LEVEL_COOLDOWN;
+    },
+    endCooldownTimer: function() {
+        this.cooling = false;
+    },
+    endLevel: function() {
+        this.endLevelTimer();
         if (!this.lost) {
             if (this.currentLevel === mazes.length - 1) {
                 console.log('you win');
             }
             this.currentLevel++;
-            this.startTimer();
             gameState.graphicalMaze.destroy();
-            gameState.graphicalMaze = new GraphicalMaze(mazes[gameState.currentLevel], scene);
-            gameState.graphicalMaze.origin.position.y = 1;
-            this.shipManager.startWave(LEVEL_TIME, SHIP_SPEED, (1 + this.currentLevel) * 10);
+            this.startCooldownTimer();
+            this.shipManager.blowWaveAway();
         }
     },
+    startNextLevel: function() {
+        this.startLevelTimer();
+        gameState.graphicalMaze = new GraphicalMaze(mazes[gameState.currentLevel], this.scene);
+        gameState.graphicalMaze.origin.position.y = 1;
+        this.shipManager.startWave(LEVEL_TIME, SHIP_SPEED, (1 + this.currentLevel) * 10);
+    },
     decrementTimer: function() {
+        let prev = this.timestamp;
+        this.timestamp = new Date();
+        let deltaTimeSeconds = (this.timestamp - prev) / 1000;
         if (this.timing) {
-            let prev = this.timestamp;
-            this.timestamp = new Date();
-            let deltaTimeSeconds = (this.timestamp - prev) / 1000;
-            this.levelTimer -= deltaTimeSeconds;
-            if (this.levelTimer <= 0) {
-                this.endTimer();
+            this.timer -= deltaTimeSeconds;
+            if (this.timer <= 0) {
+                this.endLevelTimer();
                 this.lost = true;
                 console.log('you lose');
+            }
+        } else if (this.cooling) {
+            this.timer -= deltaTimeSeconds;
+            if (this.timer <= 0) {
+                this.endCooldownTimer();
+                this.startNextLevel();
             }
         }
     }
@@ -83,18 +102,19 @@ const createScene = async function () {
     ground.position.y = 0.01;
     ground.position.z = -50;
     
+    gameState.scene = scene;
     gameState.shipManager = new ShipManager(scene, 100, 50);
 
     window.addEventListener("keydown", function(event) {
         switch (event.key) {
             case "s":
                 // start game
-                gameState.startTimer();
+                gameState.startLevelTimer();
                 gameState.shipManager.startWave(LEVEL_TIME, SHIP_SPEED, (1 + gameState.currentLevel) * 10);
                 break;
             case "w":
                 // end level
-                gameState.nextLevel(scene);
+                gameState.endLevel(scene);
                 break;
             default:
                 return;
@@ -146,7 +166,7 @@ const createScene = async function () {
                     mazes[gameState.currentLevel].setOffsets(gameState.graphicalMaze.offsets());
                     pather.solveAndShow(mazes[gameState.currentLevel]);
                     if (pather.solution.length > 0) {
-                        gameState.nextLevel();
+                        gameState.endLevel();
                         pather.drawnPath.dispose();
                     }
                     break;

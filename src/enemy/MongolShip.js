@@ -2,6 +2,7 @@ class MongolShip {
     constructor(scene, spawn, isFlagShip) {
         this.origin = new BABYLON.TransformNode("shippy", scene);
         this.traveling = false;
+        this.beingBlownAway = false;
         const hull = BABYLON.MeshBuilder.CreateCylinder("hull", {
             height: 0.5,
             diameterTop: 0,
@@ -33,10 +34,18 @@ class MongolShip {
         this.origin.position = spawn;
         this.timestamp = new Date();
         scene.registerBeforeRender(() => {
-            if (this.traveling) {
-                let prev = this.timestamp;
-                this.timestamp = new Date();
-                let deltaTimeSeconds = (this.timestamp - prev) / 1000;
+            let prev = this.timestamp;
+            this.timestamp = new Date();
+            let deltaTimeSeconds = (this.timestamp - prev) / 1000;
+            if (this.beingBlownAway) {
+                this.origin.position.z += deltaTimeSeconds * SHIP_SPEED * 10;
+                this.origin.rotation.x += Math.random();
+                this.origin.rotation.y += Math.random();
+                this.origin.rotation.z += Math.random();
+                if (this.origin.position.z > HORIZON) {
+                    this.beingBlownAway = false;
+                }
+            } else if (this.traveling) {
                 this.origin.position.z -= deltaTimeSeconds * SHIP_SPEED;
                 if (this.origin.position.z < 0) {
                     this.traveling = false;
@@ -49,9 +58,19 @@ class MongolShip {
         this.origin.position.y = y;
         this.origin.position.z = z;
     }
+    resetRotation() {
+        this.origin.rotation.x = 0;
+        this.origin.rotation.y = 0;
+        this.origin.rotation.z = 0;
+    }
     resetTraveling() {
         this.traveling = true;
+        this.beingBlownAway = false;
+        this.resetRotation();
         this.timestamp = new Date();
     }
-
+    blowAway() {
+        this.beingBlownAway = true;
+        this.traveling = false;
+    }
 }

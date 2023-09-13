@@ -17,4 +17,11 @@ class ShipManager {
             this.ships[i].resetTraveling();
         }
     }
+    blowWaveAway() {
+        for (let ship of this.ships) {
+            if (ship.traveling) {
+                ship.blowAway();
+            }
+        }
+    }
 }

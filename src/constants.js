@@ -8,3 +8,5 @@ const ANGULAR_SPEED = 0.7;
 const LEVELS = 7;
 const SHIP_SPEED = 3;
 const LEVEL_TIME = 20; // seconds
+const LEVEL_COOLDOWN = 3;
+const HORIZON = 200;
