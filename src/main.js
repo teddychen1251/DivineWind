@@ -41,6 +41,7 @@ const gameState = {
         if (!this.lost) {
             if (this.currentLevel === mazes.length - 1) {
                 this.xr.baseExperience.exitXRAsync();
+                document.getElementById("screenText").innerText = "You have defended Japan!";
             }
             this.currentLevel++;
             gameState.graphicalMaze.destroy();
@@ -64,6 +65,7 @@ const gameState = {
                 this.endLevelTimer();
                 this.lost = true;
                 this.xr.baseExperience.exitXRAsync();
+                document.getElementById("screenText").innerText = "The Mongols succeed...";
             }
         } else if (this.cooling) {
             this.timer -= deltaTimeSeconds;
@@ -120,6 +122,7 @@ const createScene = async function () {
     xr.baseExperience.onStateChangedObservable.add((state) => {
         switch (state) {
             case BABYLON.WebXRState.IN_XR:
+                document.getElementById("screenText").innerText = "";
                 gameState.startLevelTimer();
                 gameState.shipManager.startWave(LEVEL_TIME, SHIP_SPEED, (1 + gameState.currentLevel) * 10);
                 gameState.graphicalMaze = new GraphicalMaze(mazes[gameState.currentLevel], scene);
