@@ -24,3 +24,7 @@ wall shifts in addition to junction rotates
 rotating junctions might be bad after all, since one wall is useless, two walls as well
 part of the problem is that the maze is too open, rotating a junction is useless a lot of the time
  - delete less walls in the maze
+
+ put offsets in new maze class
+
+ when you solve the circle, it becomes a twister that blows away the ships!!!
