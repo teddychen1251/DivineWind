@@ -14,6 +14,7 @@ class GraphicalMaze {
         this.initialRotatingVector = new BABYLON.Vector3();
         this.currPickVector = new BABYLON.Vector3();
         this.timestamp = new Date();
+        this.isSolved = false;
         scene.registerBeforeRender(() => {
             let prev = this.timestamp;
             this.timestamp = new Date();
@@ -32,11 +33,13 @@ class GraphicalMaze {
         this.pickingPlaneNormal.z = Math.cos(angle);
     }
     unhightlightLayers() {
+        if (this.isSolved) return;
         for (let layer of this.rotationLayers) {
             layer.setWallColor(BABYLON.Color3.Black());
         }
     }
     highlightLayer(radius) {
+        if (this.isSolved) return;
         this.unhightlightLayers();
         let chosen = Math.floor((radius - INNER_RADIUS) / CELL_HEIGHT) + 1;
         if (0 < chosen && chosen < this.maze.grid.length - 1) {
@@ -54,7 +57,7 @@ class GraphicalMaze {
     }
     rotateLayer(pickPoint) {
         pickPoint.subtractToRef(this.origin.position, this.currPickVector);
-        const angle = -BABYLON.Vector3.GetAngleBetweenVectorsOnPlane(this.initialRotatingVector, this.currPickVector, this.pickingPlaneNormal);
+        const angle = BABYLON.Vector3.GetAngleBetweenVectorsOnPlane(this.initialRotatingVector, this.currPickVector, this.pickingPlaneNormal);
         this.rotationLayers[this.rotatingLayer].rotate(angle);
     }
     endRotateLayer() {
@@ -70,7 +73,14 @@ class GraphicalMaze {
         }
         return offsets;
     }
+    solved() {
+        this.isSolved = true;
+        for (let layer of this.rotationLayers) {
+            layer.setWallColor(new BABYLON.Color3(255 / 256, 215 / 256, 0));
+        }
+    }
     destroy() {
         this.origin.dispose();
+        this.isSolved = false;
     }
 }

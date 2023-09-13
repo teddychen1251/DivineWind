@@ -62,7 +62,6 @@ const gameState = {
             if (this.timer <= 0) {
                 this.endLevelTimer();
                 this.lost = true;
-                console.log('you lose');
             }
         } else if (this.cooling) {
             this.timer -= deltaTimeSeconds;
@@ -82,7 +81,7 @@ const createScene = async function () {
     scene.fogDensity = 0.02;
 
     const camera = new BABYLON.UniversalCamera("camera1", 
-        new BABYLON.Vector3(0, 0, -3), scene);
+        new BABYLON.Vector3(0, 0, -.5), scene);
     camera.setTarget(BABYLON.Vector3.Zero());
     camera.attachControl(canvas, true);
     const light = new BABYLON.HemisphericLight("light", 
@@ -123,10 +122,10 @@ const createScene = async function () {
 
     scene.registerBeforeRender(() => {
         gameState.decrementTimer();
+        if (gameState.lost) {
+            xr.baseExperience.exitXRAsync();
+        }
     });
-
-    gameState.graphicalMaze = new GraphicalMaze(mazes[gameState.currentLevel], scene);
-    gameState.graphicalMaze.origin.position.y = 1;
 
     const xr = await scene.createDefaultXRExperienceAsync({
         pointerSelectionOptions: {
@@ -134,6 +133,18 @@ const createScene = async function () {
             disableSwitchOnClick: true
         },
     });
+    xr.baseExperience.onStateChangedObservable.add((state) => {
+        switch (state) {
+            case BABYLON.WebXRState.IN_XR:
+                gameState.startLevelTimer();
+                gameState.shipManager.startWave(LEVEL_TIME, SHIP_SPEED, (1 + gameState.currentLevel) * 10);
+                gameState.graphicalMaze = new GraphicalMaze(mazes[gameState.currentLevel], scene);
+                gameState.graphicalMaze.origin.position.y = 1;
+                break;
+            default:
+                break;
+        }
+    })
     const pointerRay = new BABYLON.Ray(new BABYLON.Vector3(), new BABYLON.Vector3());
     xr.input.onControllerAddedObservable.add((input) => {
         if (input.inputSource.handedness === "left") return;
@@ -148,6 +159,10 @@ const createScene = async function () {
                     }
                     break;
                 case BABYLON.PointerEventTypes.POINTERMOVE:
+                    if (gameState.graphicalMaze.isSolved && input.pointer.position.z > gameState.graphicalMaze.origin.position.z) {
+                        gameState.endLevel();
+                        pather.drawnPath.dispose();
+                    }
                     if (result.hit) {
                         if (gameState.graphicalMaze.rotating) {
                             gameState.graphicalMaze.rotateLayer(result.pickedPoint);
@@ -166,8 +181,7 @@ const createScene = async function () {
                     mazes[gameState.currentLevel].setOffsets(gameState.graphicalMaze.offsets());
                     pather.solveAndShow(mazes[gameState.currentLevel]);
                     if (pather.solution.length > 0) {
-                        gameState.endLevel();
-                        pather.drawnPath.dispose();
+                        gameState.graphicalMaze.solved();
                     }
                     break;
             }
